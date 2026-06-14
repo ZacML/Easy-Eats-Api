@@ -1,6 +1,7 @@
-package com.easy.eats.pagamento.model;
+package com.easy.eats.endereco.model;
 
-import com.easy.eats.venda.model.Venda;
+
+import com.easy.eats.cliente.model.Cliente;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,20 +20,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "TBPAGAMENTO")
-public class Pagamento {
+@Table(name = "TBENDERECO")
+public class Endereco {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String metodo;
-    private Double valor;
-    private String status;
-    private String dt_pagamento;
-    private String dt_alteracao;
+    private String rua;
+    private Integer numero;
+    private String bairro;
+    private String cidade;
+    private Integer cep;
+    private String complemento;
 
     @ManyToOne
-    @JoinColumn(name = "venda_id", nullable = false)
-    private Venda venda;
-
+    @JoinColumn(name = "cliente_id", nullable = false)
+    private Cliente cliente;
 }

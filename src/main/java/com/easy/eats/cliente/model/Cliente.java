@@ -1,10 +1,19 @@
 package com.easy.eats.cliente.model;
 
+import org.hibernate.annotations.ManyToAny;
+import org.hibernate.annotations.OnDelete;
+
+import com.easy.eats.endereco.model.Endereco;
+import com.easy.eats.pedido.model.Pedido;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "TBCLIENTE")
 public class Cliente {
@@ -22,16 +32,14 @@ public class Cliente {
     private String nome;
     private String email;
     private String telefone;
+    private String endereco;
     private String dt_criacao;
     private String dt_alteracao;
 
-    public Cliente(Integer id, String nome, String email, String telefone, String dt_criacao, String dt_alteracao) {
-        this.id = id;
-        this.nome = nome;
-        this.email = email;
-        this.telefone = telefone;
-        this.dt_criacao = dt_criacao;
-        this.dt_alteracao = dt_alteracao;
-    }
+    @OneToMany(mappedBy = "cliente")
+    private java.util.List<Pedido> pedidos;
+
+    @OneToMany(mappedBy = "cliente")
+    private java.util.List<Endereco> enderecos;
 
 }
