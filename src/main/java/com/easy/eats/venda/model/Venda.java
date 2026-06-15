@@ -1,10 +1,21 @@
 package com.easy.eats.venda.model;
 
+import java.util.List;
+
+import com.easy.eats.itemVenda.model.ItemVenda;
+import com.easy.eats.mesa.model.Mesa;
+import com.easy.eats.pagamento.model.Pagamento;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +23,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "TBVENDA")
 public class Venda {
@@ -28,17 +40,18 @@ public class Venda {
     private String dt_criacao;
     private String dt_alteracao;
 
-    public Venda(Integer id, String status, String tipo, String origem, Double valor_total, Double desconto,
-            String dt_fechamento, String dt_criacao, String dt_alteracao) {
-        this.id = id;
-        this.status = status;
-        this.tipo = tipo;
-        this.origem = origem;
-        this.valor_total = valor_total;
-        this.desconto = desconto;
-        this.dt_fechamento = dt_fechamento;
-        this.dt_criacao = dt_criacao;
-        this.dt_alteracao = dt_alteracao;
-    }
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)
+    private List<ItemVenda> itens;
+
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)
+    private List<Pagamento> pagamentos;
+
+    @ManyToOne 
+    @JoinColumn(name = "mesa_id", nullable = false)
+    private Mesa mesa;
+
+    @ManyToOne
+    @JoinColumn(name = "Usuario_id", nullable = false)
+    private Usuario usuario;
 
 }

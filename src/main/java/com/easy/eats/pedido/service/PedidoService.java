@@ -9,5 +9,5 @@ import com.easy.eats.padrao.repository.VendaRepository;
 public class PedidoService {
 
     @Autowired
-    VendaRepository repository;
+    ItemVendaRepository repository;
 }
