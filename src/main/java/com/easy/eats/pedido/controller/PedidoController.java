@@ -15,10 +15,29 @@ public class PedidoController {
     @Autowired
     private PedidoService service;
 
+    @PostMapping("/criarPedido")
+    public ResponseEntity<Pedido> criar(@RequestBody Pedido pedido) {
+        Pedido novoPedido = service.salvar(pedido);
+        return ResponseEntity.ok(novoPedido);
+    }
+
     @GetMapping
     public ResponseEntity<List<Pedido>> listarTodos() {
         List<Pedido> pedidos = service.listarTodos();
         return ResponseEntity.ok(pedidos);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Pedido> atualizar(@PathVariable Integer id, @RequestBody Pedido pedidoAtualizado) {
+        return service.buscarPorId(id).map(pedidoExistente -> {
+
+            pedidoExistente.setNomeProduto(pedidoAtualizado.getNomeProduto());
+            pedidoExistente.setQuantidadeProduto(pedidoAtualizado.getQuantidadeProduto());
+            ;
+
+            Pedido pedidoSalvo = service.salvar(pedidoExistente);
+            return ResponseEntity.ok(pedidoSalvo);
+        }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}")
@@ -26,5 +45,21 @@ public class PedidoController {
         return service.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/pedido/{id}")
+    public ResponseEntity<Pedido> buscarPedido(@PathVariable Integer id) {
+        return service.listarArvorePedido(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+        if (service.buscarPorId(id).isPresent()) {
+            service.deletar(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }
