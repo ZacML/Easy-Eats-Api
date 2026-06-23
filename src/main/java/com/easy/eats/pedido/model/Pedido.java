@@ -1,6 +1,10 @@
 package com.easy.eats.pedido.model;
+    
+import com.easy.eats.pedido.enums.StatusPedido;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,9 +25,11 @@ public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private StatusPedido status;
 
     private String nomeProduto;
     private Integer quantidadeProduto;
-
 }

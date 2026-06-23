@@ -7,6 +7,7 @@ import com.easy.eats.pedido.bst.ArvorePedido;
 import com.easy.eats.pedido.model.Pedido;
 import com.easy.eats.pedido.repository.PedidoRepository;
 import com.easy.eats.venda.model.Venda;
+import com.easy.eats.pedido.enums.StatusPedido;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,5 +50,29 @@ public class PedidoService {
 
     public void deletar(Integer id) {
         repository.deleteById(id);
+    }
+
+    public List<Pedido> obterFilaDePedidos() {
+        return repository.findFilaAtiva();
+    }
+
+    public Pedido iniciarPreparo(Integer id) {
+        Pedido pedido = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        
+        if (pedido.getStatus() == StatusPedido.AGUARDANDO) {
+            pedido.setStatus(StatusPedido.PREPARANDO);
+            return repository.save(pedido);
+        }
+        
+        return pedido;
+    }
+
+    public Pedido marcarComoPronto(Integer id) {
+        Pedido pedido = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        
+        pedido.setStatus(StatusPedido.PRONTO);
+        return repository.save(pedido);
     }
 }

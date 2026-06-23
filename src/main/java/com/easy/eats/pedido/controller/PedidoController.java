@@ -62,4 +62,20 @@ public class PedidoController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/fila")
+    public ResponseEntity<List<Pedido>> getFila() {
+        return ResponseEntity.ok(service.obterFilaDePedidos());
+    }
+
+    @PutMapping("/{id}/iniciar")
+    public ResponseEntity<Pedido> iniciarPreparo(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.iniciarPreparo(id));
+    }
+
+
+    @PutMapping("/{id}/pronto")
+    public ResponseEntity<Pedido> marcarPronto(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.marcarComoPronto(id));
+    }
 }
