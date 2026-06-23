@@ -5,6 +5,7 @@ import java.util.List;
 import com.easy.eats.itemVenda.model.ItemVenda;
 import com.easy.eats.mesa.model.Mesa;
 import com.easy.eats.pagamento.model.Pagamento;
+import com.easy.eats.usuario.model.Usuario;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
