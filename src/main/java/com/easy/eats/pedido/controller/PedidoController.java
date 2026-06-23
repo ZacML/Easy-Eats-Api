@@ -73,7 +73,6 @@ public class PedidoController {
         return ResponseEntity.ok(service.iniciarPreparo(id));
     }
 
-
     @PutMapping("/{id}/pronto")
     public ResponseEntity<Pedido> marcarPronto(@PathVariable Integer id) {
         return ResponseEntity.ok(service.marcarComoPronto(id));

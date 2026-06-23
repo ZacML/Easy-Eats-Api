@@ -59,19 +59,19 @@ public class PedidoService {
     public Pedido iniciarPreparo(Integer id) {
         Pedido pedido = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
-        
+
         if (pedido.getStatus() == StatusPedido.AGUARDANDO) {
             pedido.setStatus(StatusPedido.PREPARANDO);
             return repository.save(pedido);
         }
-        
+
         return pedido;
     }
 
     public Pedido marcarComoPronto(Integer id) {
         Pedido pedido = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
-        
+
         pedido.setStatus(StatusPedido.PRONTO);
         return repository.save(pedido);
     }
