@@ -1,8 +1,12 @@
 package com.easy.eats.usuario.model;
 
 import com.easy.eats.empresa.model.model.Empresa;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,11 +26,22 @@ public class Usuario {
     @JoinColumn(name = "empresa_id")
     private Empresa empresa;
 
+    @NotBlank(message = "O nome é obrigatório")
     private String nome;
 
+    @NotBlank(message = "O e-mail é obrigatório")
+    @Email(message = "E-mail inválido")
     private String email;
 
+    // Sem @NotBlank: na criação a ausência é validada manualmente no
+    // service (senha é obrigatória); na atualização o campo é opcional —
+    // se vier em branco, a senha atual é mantida em vez de forçar reenvio.
+    @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String senha;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     private Boolean flAtivo;
 }

@@ -1,0 +1,172 @@
+package com.easy.eats.security;
+
+import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import com.easy.eats.categoria.model.Categoria;
+import com.easy.eats.categoria.repository.CategoriaRepository;
+import com.easy.eats.empresa.model.model.Empresa;
+import com.easy.eats.empresa.repository.EmpresaRepository;
+import com.easy.eats.mesa.model.Mesa;
+import com.easy.eats.mesa.repository.MesaRepository;
+import com.easy.eats.produto.model.Produto;
+import com.easy.eats.produto.repository.ProdutoRepository;
+import com.easy.eats.segmento.model.Funcionalidade;
+import com.easy.eats.segmento.model.Segmento;
+import com.easy.eats.segmento.repository.SegmentoRepository;
+import com.easy.eats.usuario.model.Role;
+import com.easy.eats.usuario.model.Usuario;
+import com.easy.eats.usuario.repository.UsuarioRepository;
+
+/**
+ * Cria os dados iniciais de acesso (ambiente de desenvolvimento), caso ainda
+ * não existam. Em produção isso seria substituído por uma migration.
+ */
+@Component
+public class DataSeeder implements CommandLineRunner {
+
+    private final UsuarioRepository usuarioRepository;
+    private final EmpresaRepository empresaRepository;
+    private final SegmentoRepository segmentoRepository;
+    private final MesaRepository mesaRepository;
+    private final CategoriaRepository categoriaRepository;
+    private final ProdutoRepository produtoRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public DataSeeder(UsuarioRepository usuarioRepository, EmpresaRepository empresaRepository,
+            SegmentoRepository segmentoRepository, MesaRepository mesaRepository,
+            CategoriaRepository categoriaRepository, ProdutoRepository produtoRepository,
+            PasswordEncoder passwordEncoder) {
+        this.usuarioRepository = usuarioRepository;
+        this.empresaRepository = empresaRepository;
+        this.segmentoRepository = segmentoRepository;
+        this.mesaRepository = mesaRepository;
+        this.categoriaRepository = categoriaRepository;
+        this.produtoRepository = produtoRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public void run(String... args) {
+        segmentoSeNaoExistir("Restaurante", "Operação com mesas e atendimento no salão",
+                EnumSet.allOf(Funcionalidade.class));
+
+        Segmento foodTruck = segmentoSeNaoExistir("Food Truck",
+                "Operação de rua, sem mesas fixas: pedido, cozinha, delivery e estoque",
+                EnumSet.of(Funcionalidade.PEDIDO, Funcionalidade.COZINHA, Funcionalidade.DELIVERY,
+                        Funcionalidade.ESTOQUE, Funcionalidade.COMPRAS, Funcionalidade.FINANCEIRO,
+                        Funcionalidade.PRODUTOS, Funcionalidade.CLIENTES, Funcionalidade.USUARIOS,
+                        Funcionalidade.CONFIGURACOES));
+
+        Empresa empresaDemo = empresaSeNaoExistir(foodTruck);
+        mesasSeNaoExistir(empresaDemo, 5);
+        catalogoSeNaoExistir(empresaDemo);
+
+        // SUPERADMIN não pertence a nenhuma empresa: enxerga todas.
+        criarSeNaoExistir("Super Admin", "superadmin@easyeats.com", "superadmin123", Role.SUPERADMIN, null);
+        criarSeNaoExistir("Administrador", "admin@easyeats.com", "admin123", Role.ADMINISTRADOR, empresaDemo);
+        criarSeNaoExistir("Operador", "operador@easyeats.com", "operador123", Role.OPERADOR, empresaDemo);
+        criarSeNaoExistir("Garçom", "garcom@easyeats.com", "garcom123", Role.GARCOM, empresaDemo);
+    }
+
+    private void mesasSeNaoExistir(Empresa empresa, int quantidade) {
+        List<Mesa> existentes = mesaRepository.findAllByEmpresaId(empresa.getId());
+        if (!existentes.isEmpty()) {
+            return;
+        }
+
+        for (int numero = 1; numero <= quantidade; numero++) {
+            Mesa mesa = new Mesa();
+            mesa.setNumero(numero);
+            mesa.setStatus("LIVRE");
+            mesa.setEmpresa(empresa);
+            mesaRepository.save(mesa);
+        }
+    }
+
+    private void catalogoSeNaoExistir(Empresa empresa) {
+        if (!produtoRepository.findAllByEmpresaId(empresa.getId()).isEmpty()) {
+            return;
+        }
+
+        Categoria lanches = categoriaComProduto("Lanches", empresa);
+        Categoria bebidas = categoriaComProduto("Bebidas", empresa);
+
+        produto("Hambúrguer Clássico", "Hambúrguer tradicional artesanal", 22.0, lanches, empresa);
+        produto("X-Bacon", "Hambúrguer com bacon crocante", 28.0, lanches, empresa);
+        produto("Hot Dog", "Cachorro-quente completo", 15.0, lanches, empresa);
+        produto("Coca-Cola", "Refrigerante gelado 350ml", 7.0, bebidas, empresa);
+        produto("Água Mineral", "500ml sem gás", 4.0, bebidas, empresa);
+    }
+
+    private Categoria categoriaComProduto(String nome, Empresa empresa) {
+        Categoria categoria = new Categoria();
+        categoria.setNome(nome);
+        categoria.setFlativo(true);
+        categoria.setEmpresa(empresa);
+        return categoriaRepository.save(categoria);
+    }
+
+    private void produto(String nome, String descricao, Double preco, Categoria categoria, Empresa empresa) {
+        Produto produto = new Produto();
+        produto.setNome(nome);
+        produto.setDescricao(descricao);
+        produto.setPreco(preco);
+        produto.setFlAtivo(true);
+        produto.setCategoria(categoria);
+        produto.setEmpresa(empresa);
+        produtoRepository.save(produto);
+    }
+
+    private Segmento segmentoSeNaoExistir(String nome, String descricao, Set<Funcionalidade> funcionalidades) {
+        return segmentoRepository.findAll().stream()
+                .filter(s -> nome.equals(s.getNome()))
+                .findFirst()
+                .orElseGet(() -> {
+                    Segmento segmento = new Segmento();
+                    segmento.setNome(nome);
+                    segmento.setDescricao(descricao);
+                    segmento.setFlAtivo(true);
+                    segmento.setFuncionalidades(funcionalidades);
+                    return segmentoRepository.save(segmento);
+                });
+    }
+
+    private Empresa empresaSeNaoExistir(Segmento segmentoPadrao) {
+        return empresaRepository.findAll().stream()
+                .filter(e -> "Empresa Demo".equals(e.getNome()))
+                .findFirst()
+                .orElseGet(() -> {
+                    Empresa empresa = new Empresa();
+                    empresa.setNome("Empresa Demo");
+                    empresa.setCnpj("00000000000000");
+                    empresa.setEmail("contato@easyeats.com");
+                    empresa.setFlAtivo(true);
+                    empresa.setDtCriacao(LocalDateTime.now());
+                    empresa.setSegmento(segmentoPadrao);
+                    return empresaRepository.save(empresa);
+                });
+    }
+
+    private void criarSeNaoExistir(String nome, String email, String senha, Role role, Empresa empresa) {
+        if (usuarioRepository.findByEmail(email).isPresent()) {
+            return;
+        }
+
+        Usuario usuario = new Usuario();
+        usuario.setNome(nome);
+        usuario.setEmail(email);
+        usuario.setSenha(passwordEncoder.encode(senha));
+        usuario.setRole(role);
+        usuario.setEmpresa(empresa);
+        usuario.setFlAtivo(true);
+
+        usuarioRepository.save(usuario);
+    }
+}

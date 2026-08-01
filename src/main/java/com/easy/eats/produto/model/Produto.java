@@ -2,13 +2,20 @@ package com.easy.eats.produto.model;
 
 import java.time.LocalDateTime;
 
+import com.easy.eats.categoria.model.Categoria;
+import com.easy.eats.empresa.model.model.Empresa;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,8 +23,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "TBPRODUTO")
 public class Produto {
@@ -25,11 +30,29 @@ public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @NotBlank(message = "O nome do produto é obrigatório")
     private String nome;
+
     private String descricao;
+
+    @NotNull(message = "O preço é obrigatório")
+    @PositiveOrZero(message = "O preço não pode ser negativo")
     private Double preco;
+
+    @PositiveOrZero(message = "O custo não pode ser negativo")
     private Double custo;
+
     private Boolean flAtivo;
     private LocalDateTime dtAlteracao;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    @JsonIgnoreProperties("produtos")
+    private Categoria categoria;
+
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
 
 }

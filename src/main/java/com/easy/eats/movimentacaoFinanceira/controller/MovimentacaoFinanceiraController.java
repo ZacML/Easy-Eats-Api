@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,12 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.easy.eats.movimentacaoFinanceira.model.MovimentacaoFinanceira;
 import com.easy.eats.movimentacaoFinanceira.service.MovimentacaoFinanceiraService;
 
+import jakarta.validation.Valid;
 
-@Controller
+@RestController
 @RequestMapping("/movimentacao_financeira")
 public class MovimentacaoFinanceiraController {
 
@@ -26,8 +27,8 @@ public class MovimentacaoFinanceiraController {
     MovimentacaoFinanceiraService service;
 
     @PostMapping
-    public ResponseEntity<MovimentacaoFinanceira> criar(@RequestBody MovimentacaoFinanceira movimentacao) {
-        MovimentacaoFinanceira novaMovimentacao = service.salvar(movimentacao);
+    public ResponseEntity<MovimentacaoFinanceira> criar(@Valid @RequestBody MovimentacaoFinanceira movimentacao) {
+        MovimentacaoFinanceira novaMovimentacao = service.criar(movimentacao);
         return ResponseEntity.ok(novaMovimentacao);
     }
 
@@ -44,7 +45,7 @@ public class MovimentacaoFinanceiraController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MovimentacaoFinanceira> atualizar(@PathVariable Integer id, @RequestBody MovimentacaoFinanceira movimentacaoAtualizada) {
+    public ResponseEntity<MovimentacaoFinanceira> atualizar(@PathVariable Integer id, @Valid @RequestBody MovimentacaoFinanceira movimentacaoAtualizada) {
         return service.buscarPorId(id).map(movimentacaoExistente -> {
             movimentacaoExistente.setTipo(movimentacaoAtualizada.getTipo());
             movimentacaoExistente.setCategoria(movimentacaoAtualizada.getCategoria());

@@ -1,11 +1,17 @@
 package com.easy.eats.movimentacaoFinanceira.model;
 
+import com.easy.eats.empresa.model.model.Empresa;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,9 +28,20 @@ public class MovimentacaoFinanceira {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @NotBlank(message = "O tipo é obrigatório")
     private String tipo;
+
+    @NotBlank(message = "A categoria é obrigatória")
     private String categoria;
-    private Integer valor;
+
+    @NotNull(message = "O valor é obrigatório")
+    private Double valor;
+
     private String descricao;
     private String dt_alteracao;
+
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
 }

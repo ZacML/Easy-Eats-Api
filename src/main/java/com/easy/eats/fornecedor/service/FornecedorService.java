@@ -3,31 +3,47 @@ package com.easy.eats.fornecedor.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.easy.eats.empresa.repository.EmpresaRepository;
 import com.easy.eats.fornecedor.model.Fornecedor;
 import com.easy.eats.fornecedor.repository.FornecedorRepository;
+import com.easy.eats.security.SecurityUtils;
 
 @Service
 public class FornecedorService {
 
     private final FornecedorRepository repository;
 
+    @Autowired
+    private EmpresaRepository empresaRepository;
+
     public FornecedorService(FornecedorRepository repository) {
         this.repository = repository;
     }
 
     public List<Fornecedor> listarTodos() {
-        return repository.findAll();
+        if (SecurityUtils.isSuperadmin()) {
+            return repository.findAll();
+        }
+        return repository.findAllByEmpresaId(SecurityUtils.getEmpresaId());
     }
 
     public Fornecedor buscarPorId(Integer id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado"));
+        Fornecedor fornecedor = SecurityUtils.isSuperadmin()
+                ? repository.findById(id).orElse(null)
+                : repository.findByIdAndEmpresaId(id, SecurityUtils.getEmpresaId()).orElse(null);
+
+        if (fornecedor == null) {
+            throw new RuntimeException("Fornecedor não encontrado");
+        }
+        return fornecedor;
     }
 
     public Fornecedor salvar(Fornecedor fornecedor) {
-
+        fornecedor.setId(null);
+        fornecedor.setEmpresa(empresaRepository.getReferenceById(SecurityUtils.getEmpresaId()));
         fornecedor.setDtCriacao(LocalDateTime.now());
 
         return repository.save(fornecedor);
@@ -47,6 +63,7 @@ public class FornecedorService {
     }
 
     public void deletar(Integer id) {
+        buscarPorId(id);
         repository.deleteById(id);
     }
 }

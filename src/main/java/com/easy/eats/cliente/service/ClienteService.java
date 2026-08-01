@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.easy.eats.cliente.model.Cliente;
 import com.easy.eats.cliente.repository.ClienteRepository;
+import com.easy.eats.empresa.repository.EmpresaRepository;
+import com.easy.eats.security.SecurityUtils;
 
 @Service
 public class ClienteService {
@@ -15,19 +17,37 @@ public class ClienteService {
     @Autowired
     ClienteRepository repository;
 
+    @Autowired
+    EmpresaRepository empresaRepository;
+
+    public Cliente criar(Cliente cliente) {
+        cliente.setId(null);
+        cliente.setEmpresa(empresaRepository.getReferenceById(SecurityUtils.getEmpresaId()));
+        return repository.save(cliente);
+    }
+
     public Cliente salvar(Cliente cliente) {
         return repository.save(cliente);
     }
 
     public List<Cliente> listarTodos() {
-        return repository.findAll();
+        if (SecurityUtils.isSuperadmin()) {
+            return repository.findAll();
+        }
+        return repository.findAllByEmpresaId(SecurityUtils.getEmpresaId());
     }
 
     public Optional<Cliente> buscarPorId(Integer id) {
-        return repository.findById(id);
+        if (SecurityUtils.isSuperadmin()) {
+            return repository.findById(id);
+        }
+        return repository.findByIdAndEmpresaId(id, SecurityUtils.getEmpresaId());
     }
 
     public void deletar(Integer id) {
+        if (buscarPorId(id).isEmpty()) {
+            return;
+        }
         repository.deleteById(id);
     }
 }

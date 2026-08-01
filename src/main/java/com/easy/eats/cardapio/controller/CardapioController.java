@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.easy.eats.cardapio.model.Cardapio;
 import com.easy.eats.cardapio.service.CardapioService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/cardapio")
 public class CardapioController {
@@ -35,14 +37,14 @@ public class CardapioController {
     }
 
     @PostMapping
-    public ResponseEntity<Cardapio> salvar(@RequestBody Cardapio cardapio) {
+    public ResponseEntity<Cardapio> salvar(@Valid @RequestBody Cardapio cardapio) {
         return ResponseEntity.ok(service.salvar(cardapio));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Cardapio> atualizar(
             @PathVariable Integer id,
-            @RequestBody Cardapio cardapio) {
+            @Valid @RequestBody Cardapio cardapio) {
 
         return ResponseEntity.ok(service.atualizar(id, cardapio));
     }

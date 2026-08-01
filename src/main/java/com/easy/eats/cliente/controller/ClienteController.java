@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,11 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.easy.eats.cliente.model.Cliente;
 import com.easy.eats.cliente.service.ClienteService;
 
-@Controller
+import jakarta.validation.Valid;
+
+@RestController
 @RequestMapping("/cliente")
 public class ClienteController {
 
@@ -25,8 +27,8 @@ public class ClienteController {
     ClienteService service;
 
     @PostMapping
-    public ResponseEntity<Cliente> criar(@RequestBody Cliente cliente) {
-        Cliente novoCliente = service.salvar(cliente);
+    public ResponseEntity<Cliente> criar(@Valid @RequestBody Cliente cliente) {
+        Cliente novoCliente = service.criar(cliente);
         return ResponseEntity.ok(novoCliente);
     }
 
@@ -43,7 +45,7 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> atualizar(@PathVariable Integer id, @RequestBody Cliente clienteAtualizado) {
+    public ResponseEntity<Cliente> atualizar(@PathVariable Integer id, @Valid @RequestBody Cliente clienteAtualizado) {
         return service.buscarPorId(id).map(clienteExistente -> {
             clienteExistente.setNome(clienteAtualizado.getNome());
             clienteExistente.setEmail(clienteAtualizado.getEmail());

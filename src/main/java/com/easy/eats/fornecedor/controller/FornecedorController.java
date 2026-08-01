@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import com.easy.eats.fornecedor.model.Fornecedor;
 import com.easy.eats.fornecedor.service.FornecedorService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/fornecedores")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -29,14 +31,14 @@ public class FornecedorController {
     }
 
     @PostMapping
-    public Fornecedor salvar(@RequestBody Fornecedor fornecedor) {
+    public Fornecedor salvar(@Valid @RequestBody Fornecedor fornecedor) {
         return service.salvar(fornecedor);
     }
 
     @PutMapping("/{id}")
     public Fornecedor atualizar(
             @PathVariable Integer id,
-            @RequestBody Fornecedor fornecedor) {
+            @Valid @RequestBody Fornecedor fornecedor) {
 
         return service.atualizar(id, fornecedor);
     }

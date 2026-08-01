@@ -1,9 +1,17 @@
 package com.easy.eats.estoque.model;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
 public class Insumo {
 
+    @NotBlank(message = "O nome do insumo é obrigatório")
     private String nome;
+
+    @Min(value = 0, message = "A quantidade não pode ser negativa")
     private int quantidade;
+
+    @NotBlank(message = "A unidade é obrigatória")
     private String unidade;
 
     public Insumo() {

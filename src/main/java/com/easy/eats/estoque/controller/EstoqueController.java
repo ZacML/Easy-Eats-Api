@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.easy.eats.estoque.service.EstoqueService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/estoque")
@@ -17,7 +18,7 @@ public class EstoqueController {
     private EstoqueService estoqueService;
 
     @PostMapping("/insumo")
-    public String cadastrar(@RequestBody Insumo insumo) {
+    public String cadastrar(@Valid @RequestBody Insumo insumo) {
 
         estoqueService.cadastrarInsumo(insumo);
 

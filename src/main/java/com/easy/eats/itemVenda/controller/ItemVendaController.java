@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,11 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.easy.eats.itemVenda.model.ItemVenda;
 import com.easy.eats.itemVenda.service.ItemVendaService;
 
-@Controller
+import jakarta.validation.Valid;
+
+@RestController
 @RequestMapping("/item-venda")
 public class ItemVendaController {
 
@@ -25,8 +27,8 @@ public class ItemVendaController {
     ItemVendaService service;
 
     @PostMapping
-    public ResponseEntity<ItemVenda> criar(@RequestBody ItemVenda itemVenda) {
-        ItemVenda novoItemVenda = service.salvar(itemVenda);
+    public ResponseEntity<ItemVenda> criar(@Valid @RequestBody ItemVenda itemVenda) {
+        ItemVenda novoItemVenda = service.criar(itemVenda);
         return ResponseEntity.ok(novoItemVenda);
     }
 
@@ -43,7 +45,7 @@ public class ItemVendaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ItemVenda> atualizar(@PathVariable Integer id, @RequestBody ItemVenda itemVendaAtualizado) {
+    public ResponseEntity<ItemVenda> atualizar(@PathVariable Integer id, @Valid @RequestBody ItemVenda itemVendaAtualizado) {
         return service.buscarPorId(id).map(itemVendaExistente -> {
             itemVendaExistente.setQuantidade(itemVendaAtualizado.getQuantidade());
             itemVendaExistente.setPreco_unitario(itemVendaAtualizado.getPreco_unitario());
