@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/fornecedores")
-@CrossOrigin(origins = "http://localhost:4200")
 public class FornecedorController {
 
     private final FornecedorService service;
