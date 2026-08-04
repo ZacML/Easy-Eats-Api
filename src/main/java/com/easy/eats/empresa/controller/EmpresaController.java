@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.easy.eats.empresa.model.model.Empresa;
 import com.easy.eats.empresa.service.EmpresaService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/empresa")
 public class EmpresaController {
@@ -35,14 +37,14 @@ public class EmpresaController {
     }
 
     @PostMapping
-    public ResponseEntity<Empresa> salvar(@RequestBody Empresa empresa) {
+    public ResponseEntity<Empresa> salvar(@Valid @RequestBody Empresa empresa) {
         return ResponseEntity.ok(service.salvar(empresa));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Empresa> atualizar(
             @PathVariable Integer id,
-            @RequestBody Empresa empresa) {
+            @Valid @RequestBody Empresa empresa) {
 
         return ResponseEntity.ok(service.atualizar(id, empresa));
     }

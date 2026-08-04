@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import com.easy.eats.pedido.model.Pedido;
 import com.easy.eats.pedido.service.PedidoService;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -16,8 +18,8 @@ public class PedidoController {
     private PedidoService service;
 
     @PostMapping("/criarPedido")
-    public ResponseEntity<Pedido> criar(@RequestBody Pedido pedido) {
-        Pedido novoPedido = service.salvar(pedido);
+    public ResponseEntity<Pedido> criar(@Valid @RequestBody Pedido pedido) {
+        Pedido novoPedido = service.criar(pedido);
         return ResponseEntity.ok(novoPedido);
     }
 
@@ -28,7 +30,7 @@ public class PedidoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pedido> atualizar(@PathVariable Integer id, @RequestBody Pedido pedidoAtualizado) {
+    public ResponseEntity<Pedido> atualizar(@PathVariable Integer id, @Valid @RequestBody Pedido pedidoAtualizado) {
         return service.buscarPorId(id).map(pedidoExistente -> {
 
             pedidoExistente.setNomeProduto(pedidoAtualizado.getNomeProduto());

@@ -3,6 +3,7 @@ package com.easy.eats.estoque.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.easy.eats.estoque.model.Insumo;
 import com.easy.eats.estoque.service.EstoqueService;
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ public class EstoqueController {
     private EstoqueService estoqueService;
 
     @PostMapping("/insumo")
-    public String cadastrar(@RequestBody Insumo insumo) {
+    public String cadastrar(@Valid @RequestBody Insumo insumo) {
         estoqueService.cadastrarInsumo(insumo);
         return "Insumo cadastrado com sucesso!";
     }

@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,12 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.easy.eats.mesa.model.Mesa;
 import com.easy.eats.mesa.service.MesaService;
 
+import jakarta.validation.Valid;
 
-@Controller
+@RestController
 @RequestMapping("/mesa")
 public class MesaController {
 
@@ -26,8 +27,8 @@ public class MesaController {
     MesaService service;
 
     @PostMapping
-    public ResponseEntity<Mesa> criar(@RequestBody Mesa mesa) {
-        Mesa novaMesa = service.salvar(mesa);
+    public ResponseEntity<Mesa> criar(@Valid @RequestBody Mesa mesa) {
+        Mesa novaMesa = service.criar(mesa);
         return ResponseEntity.ok(novaMesa);
     }
 
@@ -44,7 +45,7 @@ public class MesaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Mesa> atualizar(@PathVariable Integer id, @RequestBody Mesa mesaAtualizado) {
+    public ResponseEntity<Mesa> atualizar(@PathVariable Integer id, @Valid @RequestBody Mesa mesaAtualizado) {
         return service.buscarPorId(id).map(mesaExistente -> {
             mesaExistente.setStatus(mesaAtualizado.getStatus());
             mesaExistente.setNumero(mesaAtualizado.getNumero());

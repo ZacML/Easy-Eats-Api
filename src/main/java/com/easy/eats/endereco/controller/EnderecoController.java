@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,11 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.easy.eats.endereco.model.Endereco;
 import com.easy.eats.endereco.service.EnderecoService;
 
-@Controller
+import jakarta.validation.Valid;
+
+@RestController
 @RequestMapping("/endereco")
 public class EnderecoController {
 
@@ -25,8 +27,8 @@ public class EnderecoController {
     EnderecoService service;
 
     @PostMapping
-    public ResponseEntity<Endereco> criar(@RequestBody Endereco endereco) {
-        Endereco novoEndereco = service.salvar(endereco);
+    public ResponseEntity<Endereco> criar(@Valid @RequestBody Endereco endereco) {
+        Endereco novoEndereco = service.criar(endereco);
         return ResponseEntity.ok(novoEndereco);
     }
 
@@ -43,7 +45,7 @@ public class EnderecoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Endereco> atualizar(@PathVariable Integer id, @RequestBody Endereco enderecoAtualizado) {
+    public ResponseEntity<Endereco> atualizar(@PathVariable Integer id, @Valid @RequestBody Endereco enderecoAtualizado) {
         return service.buscarPorId(id).map(enderecoExistente -> {
             enderecoExistente.setRua(enderecoAtualizado.getRua());
             enderecoExistente.setNumero(enderecoAtualizado.getNumero());

@@ -1,16 +1,18 @@
 package com.easy.eats.pedido.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.easy.eats.empresa.repository.EmpresaRepository;
 import com.easy.eats.pedido.bst.ArvorePedido;
+import com.easy.eats.pedido.enums.StatusPedido;
 import com.easy.eats.pedido.model.Pedido;
 import com.easy.eats.pedido.repository.PedidoRepository;
-import com.easy.eats.venda.model.Venda;
-import com.easy.eats.pedido.enums.StatusPedido;
-
-import java.util.List;
-import java.util.Optional;
+import com.easy.eats.security.SecurityUtils;
 
 @Service
 public class PedidoService {
@@ -18,16 +20,30 @@ public class PedidoService {
     @Autowired
     private PedidoRepository repository;
 
+    @Autowired
+    private EmpresaRepository empresaRepository;
+
+    public Pedido criar(Pedido pedido) {
+        pedido.setId(null);
+        pedido.setEmpresa(empresaRepository.getReferenceById(SecurityUtils.getEmpresaId()));
+        pedido.setStatus(StatusPedido.AGUARDANDO);
+        pedido.setDataCriacao(LocalDateTime.now());
+        return repository.save(pedido);
+    }
+
     public Pedido salvar(Pedido pedido) {
         return repository.save(pedido);
     }
 
     public List<Pedido> listarTodos() {
-        return repository.findAll();
+        if (SecurityUtils.isSuperadmin()) {
+            return repository.findAll();
+        }
+        return repository.findAllByEmpresaId(SecurityUtils.getEmpresaId());
     }
 
     public Optional<Pedido> listarArvorePedido(Integer id) {
-        List<Pedido> todosPedidos = repository.findAll();
+        List<Pedido> todosPedidos = listarTodos();
 
         if (todosPedidos.isEmpty()) {
             return Optional.empty();
@@ -45,19 +61,30 @@ public class PedidoService {
     }
 
     public Optional<Pedido> buscarPorId(Integer id) {
-        return repository.findById(id);
+        if (SecurityUtils.isSuperadmin()) {
+            return repository.findById(id);
+        }
+        return repository.findByIdAndEmpresaId(id, SecurityUtils.getEmpresaId());
     }
 
     public void deletar(Integer id) {
+        if (buscarPorId(id).isEmpty()) {
+            return;
+        }
         repository.deleteById(id);
     }
 
     public List<Pedido> obterFilaDePedidos() {
-        return repository.findFilaAtiva();
+        if (SecurityUtils.isSuperadmin()) {
+            return repository.findAll().stream()
+                    .filter(p -> p.getStatus() == StatusPedido.AGUARDANDO || p.getStatus() == StatusPedido.PREPARANDO)
+                    .toList();
+        }
+        return repository.findFilaAtivaPorEmpresa(SecurityUtils.getEmpresaId());
     }
 
     public Pedido iniciarPreparo(Integer id) {
-        Pedido pedido = repository.findById(id)
+        Pedido pedido = buscarPorId(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
         if (pedido.getStatus() == StatusPedido.AGUARDANDO) {
@@ -69,7 +96,7 @@ public class PedidoService {
     }
 
     public Pedido marcarComoPronto(Integer id) {
-        Pedido pedido = repository.findById(id)
+        Pedido pedido = buscarPorId(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
         pedido.setStatus(StatusPedido.PRONTO);

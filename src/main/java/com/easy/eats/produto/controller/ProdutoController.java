@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.easy.eats.produto.model.Produto;
 import com.easy.eats.produto.service.ProdutoService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/produtos")
 public class ProdutoController {
@@ -34,14 +36,14 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public Produto salvar(@RequestBody Produto produto) {
+    public Produto salvar(@Valid @RequestBody Produto produto) {
         return service.salvar(produto);
     }
 
     @PutMapping("/{id}")
     public Produto atualizar(
             @PathVariable Integer id,
-            @RequestBody Produto produto) {
+            @Valid @RequestBody Produto produto) {
 
         return service.atualizar(id, produto);
     }
