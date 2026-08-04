@@ -48,4 +48,73 @@ public class ArvoreInsumos {
 
         return buscarRecursivo(atual.direita, nome);
     }
+
+    public boolean atualizar(String nome, Insumo novoInsumo) {
+
+    Insumo encontrado = buscar(nome);
+
+    if (encontrado == null) {
+        return false;
+    }
+
+    encontrado.setNome(novoInsumo.getNome());
+    encontrado.setQuantidade(novoInsumo.getQuantidade());
+    encontrado.setUnidade(novoInsumo.getUnidade());
+
+    return true;
+}
+
+public boolean remover(String nome) {
+
+    if (buscar(nome) == null) {
+        return false;
+    }
+
+    raiz = removerRecursivo(raiz, nome);
+    return true;
+}
+
+private NoInsumo removerRecursivo(NoInsumo atual, String nome) {
+
+    if (atual == null) {
+        return null;
+    }
+
+    int comparacao =
+            nome.compareToIgnoreCase(atual.insumo.getNome());
+
+    if (comparacao < 0) {
+        atual.esquerda = removerRecursivo(atual.esquerda, nome);
+    } else if (comparacao > 0) {
+        atual.direita = removerRecursivo(atual.direita, nome);
+    } else {
+
+        if (atual.esquerda == null) {
+            return atual.direita;
+        }
+
+        if (atual.direita == null) {
+            return atual.esquerda;
+        }
+
+        NoInsumo menor = encontrarMenor(atual.direita);
+
+        atual.insumo = menor.insumo;
+
+        atual.direita =
+                removerRecursivo(atual.direita, menor.insumo.getNome());
+    }
+
+    return atual;
+}
+
+private NoInsumo encontrarMenor(NoInsumo no) {
+
+    while (no.esquerda != null) {
+        no = no.esquerda;
+    }
+
+    return no;
+}
+
 }

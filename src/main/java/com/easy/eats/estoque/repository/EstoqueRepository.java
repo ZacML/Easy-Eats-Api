@@ -11,4 +11,4 @@ public interface EstoqueRepository extends JpaRepository<Estoque,Integer> {
 
 
     
-} 
+}

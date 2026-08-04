@@ -1,8 +1,13 @@
 package com.easy.eats.pedido.model;
 
+import java.time.LocalDateTime;
+
 import com.easy.eats.empresa.model.model.Empresa;
+import com.easy.eats.pedido.enums.StatusPedido;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,12 +35,17 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Enumerated(EnumType.STRING)
+    private StatusPedido status;
+
     @NotBlank(message = "O nome do produto é obrigatório")
     private String nomeProduto;
 
     @NotNull(message = "A quantidade é obrigatória")
     @Positive(message = "A quantidade deve ser maior que zero")
     private Integer quantidadeProduto;
+
+    private LocalDateTime dataCriacao;
 
     @ManyToOne
     @JoinColumn(name = "empresa_id")

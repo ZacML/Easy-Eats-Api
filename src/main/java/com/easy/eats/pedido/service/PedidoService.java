@@ -1,16 +1,18 @@
 package com.easy.eats.pedido.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.easy.eats.empresa.repository.EmpresaRepository;
 import com.easy.eats.pedido.bst.ArvorePedido;
+import com.easy.eats.pedido.enums.StatusPedido;
 import com.easy.eats.pedido.model.Pedido;
 import com.easy.eats.pedido.repository.PedidoRepository;
 import com.easy.eats.security.SecurityUtils;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PedidoService {
@@ -24,6 +26,8 @@ public class PedidoService {
     public Pedido criar(Pedido pedido) {
         pedido.setId(null);
         pedido.setEmpresa(empresaRepository.getReferenceById(SecurityUtils.getEmpresaId()));
+        pedido.setStatus(StatusPedido.AGUARDANDO);
+        pedido.setDataCriacao(LocalDateTime.now());
         return repository.save(pedido);
     }
 
@@ -68,5 +72,34 @@ public class PedidoService {
             return;
         }
         repository.deleteById(id);
+    }
+
+    public List<Pedido> obterFilaDePedidos() {
+        if (SecurityUtils.isSuperadmin()) {
+            return repository.findAll().stream()
+                    .filter(p -> p.getStatus() == StatusPedido.AGUARDANDO || p.getStatus() == StatusPedido.PREPARANDO)
+                    .toList();
+        }
+        return repository.findFilaAtivaPorEmpresa(SecurityUtils.getEmpresaId());
+    }
+
+    public Pedido iniciarPreparo(Integer id) {
+        Pedido pedido = buscarPorId(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+        if (pedido.getStatus() == StatusPedido.AGUARDANDO) {
+            pedido.setStatus(StatusPedido.PREPARANDO);
+            return repository.save(pedido);
+        }
+
+        return pedido;
+    }
+
+    public Pedido marcarComoPronto(Integer id) {
+        Pedido pedido = buscarPorId(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+        pedido.setStatus(StatusPedido.PRONTO);
+        return repository.save(pedido);
     }
 }
