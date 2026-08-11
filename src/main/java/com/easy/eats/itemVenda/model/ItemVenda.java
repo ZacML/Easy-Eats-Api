@@ -1,14 +1,20 @@
 package com.easy.eats.itemVenda.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.easy.eats.produto.model.Produto;
 import com.easy.eats.venda.model.Venda;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import jakarta.validation.constraints.NotNull;
@@ -43,6 +49,9 @@ public class ItemVenda {
     private Double desconto;
     private String dt_alteracao;
 
+    /** Observação do item (ex.: "sem cebola", "bem passado"). */
+    private String observacao;
+
     @NotNull(message = "A venda é obrigatória")
     @ManyToOne
     @JoinColumn(name = "venda_id", nullable = false)
@@ -52,4 +61,12 @@ public class ItemVenda {
     @ManyToOne
     @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
+
+    @JsonIgnoreProperties("itemVenda")
+    @OneToMany(mappedBy = "itemVenda", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemVendaComposicaoRemovida> composicaoRemovida = new ArrayList<>();
+
+    @JsonIgnoreProperties("itemVenda")
+    @OneToMany(mappedBy = "itemVenda", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemVendaAdicional> adicionais = new ArrayList<>();
 }

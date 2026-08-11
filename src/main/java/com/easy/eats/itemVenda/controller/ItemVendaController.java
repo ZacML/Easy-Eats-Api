@@ -52,6 +52,7 @@ public class ItemVendaController {
             itemVendaExistente.setCusto_unitario(itemVendaAtualizado.getCusto_unitario());
             itemVendaExistente.setValor_total(itemVendaAtualizado.getValor_total());
             itemVendaExistente.setDesconto(itemVendaAtualizado.getDesconto());
+            itemVendaExistente.setObservacao(itemVendaAtualizado.getObservacao());
             ItemVenda itemVendaSalvo = service.salvar(itemVendaExistente);
             return ResponseEntity.ok(itemVendaSalvo);
         }).orElseGet(() -> ResponseEntity.notFound().build());

@@ -62,6 +62,7 @@ public class ProdutoService {
         existente.setPreco(produto.getPreco());
         existente.setCusto(produto.getCusto());
         existente.setFlAtivo(produto.getFlAtivo());
+        existente.setNatureza(produto.getNatureza());
         existente.setCategoria(categoriaDaMesmaEmpresa(produto.getCategoria()));
         existente.setDtAlteracao(LocalDateTime.now());
 
