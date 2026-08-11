@@ -1,6 +1,9 @@
 package com.easy.eats.pagamento.model;
 
+import com.easy.eats.caixa.model.Caixa;
+import com.easy.eats.comanda.model.Comanda;
 import com.easy.eats.venda.model.Venda;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,8 +46,23 @@ public class Pagamento {
     private String dt_pagamento;
     private String dt_alteracao;
 
-    @NotNull(message = "A venda é obrigatória")
+    // Exatamente um entre venda/comanda deve estar preenchido — validado no
+    // service, não aqui, porque a regra depende de qual dos dois veio no
+    // payload (pagamento avulso de balcão vs. fechamento de comanda).
+    @JsonIgnoreProperties("pagamentos")
     @ManyToOne
-    @JoinColumn(name = "venda_id", nullable = false)
+    @JoinColumn(name = "venda_id")
     private Venda venda;
+
+    @JsonIgnoreProperties("vendas")
+    @ManyToOne
+    @JoinColumn(name = "comanda_id")
+    private Comanda comanda;
+
+    // Sessão de caixa aberta no momento do pagamento — setada automaticamente
+    // pelo PagamentoService, não vem no payload do cliente. Fica nula para
+    // pagamentos do link público (sem caixa físico).
+    @ManyToOne
+    @JoinColumn(name = "caixa_id")
+    private Caixa caixa;
 }

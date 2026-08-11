@@ -1,12 +1,15 @@
 package com.easy.eats.empresa.service;
 
+import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
 import com.easy.eats.empresa.model.model.Empresa;
 import com.easy.eats.empresa.repository.EmpresaRepository;
+import com.easy.eats.security.SecurityUtils;
 import com.easy.eats.segmento.model.Funcionalidade;
 import com.easy.eats.segmento.model.Segmento;
 import com.easy.eats.segmento.repository.SegmentoRepository;
@@ -30,10 +33,65 @@ public class EmpresaService {
                 .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
     }
 
+    public Empresa buscarPorSlug(String slug) {
+        return repository.findBySlug(slug)
+                .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+    }
+
     public Empresa salvar(Empresa empresa) {
         empresa.setId(null);
         empresa.setSegmento(segmentoDoIdRecebido(empresa.getSegmento()));
+        empresa.setSlug(gerarSlugUnico(empresa.getNome(), null));
         return repository.save(empresa);
+    }
+
+    /**
+     * Permite ao ADMINISTRADOR da própria empresa (ou ao SUPERADMIN, para
+     * qualquer empresa) trocar o link público do cardápio. A autorização de
+     * "só a própria empresa" já é reforçada no SecurityConfig via o matcher
+     * de PUT /empresa/{id}/slug, mas o service reforça de novo aqui porque um
+     * ADMINISTRADOR de uma empresa não deve conseguir alterar o slug de outra
+     * só por adivinhar o id na URL.
+     */
+    public Empresa atualizarSlug(Integer id, String novoSlug) {
+        Empresa empresa = buscarPorId(id);
+
+        if (!SecurityUtils.isSuperadmin() && !Objects.equals(id, SecurityUtils.getEmpresaId())) {
+            throw new IllegalArgumentException("Você não tem permissão para alterar esta empresa");
+        }
+
+        if (novoSlug == null || novoSlug.isBlank()) {
+            throw new IllegalArgumentException("O link público não pode ficar vazio");
+        }
+
+        String slugNormalizado = normalizarSlug(novoSlug);
+        if (repository.findBySlug(slugNormalizado).filter(e -> !e.getId().equals(id)).isPresent()) {
+            throw new IllegalArgumentException("Esse link já está em uso por outra empresa");
+        }
+
+        empresa.setSlug(slugNormalizado);
+        return repository.save(empresa);
+    }
+
+    private String gerarSlugUnico(String nome, Integer idAtual) {
+        String base = normalizarSlug(nome);
+        String candidato = base;
+        int sufixo = 2;
+        while (repository.findBySlug(candidato).filter(e -> !e.getId().equals(idAtual)).isPresent()) {
+            candidato = base + "-" + sufixo;
+            sufixo++;
+        }
+        return candidato;
+    }
+
+    private String normalizarSlug(String texto) {
+        String semAcentos = Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        return semAcentos.toLowerCase()
+                .trim()
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("[\\s-]+", "-")
+                .replaceAll("^-|-$", "");
     }
 
     public Empresa atualizar(Integer id, Empresa empresa) {

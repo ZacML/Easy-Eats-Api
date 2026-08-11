@@ -14,4 +14,6 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, Integer> {
     List<Pagamento> findAllByVenda_Empresa_Id(Integer empresaId);
 
     Optional<Pagamento> findByIdAndVenda_Empresa_Id(Integer id, Integer empresaId);
+
+    List<Pagamento> findAllByCaixaId(Integer caixaId);
 }

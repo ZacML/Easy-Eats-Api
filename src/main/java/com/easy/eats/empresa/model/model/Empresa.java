@@ -47,6 +47,18 @@ public class Empresa {
     private LocalDateTime dtCriacao;
     private LocalDateTime dtAlteracao;
 
+    // Identificador usado no link público do cardápio (ex.: /cardapio/pizzaria-do-joao).
+    // Gerado automaticamente a partir do nome e editável pelo administrador da empresa.
+    private String slug;
+
+    // Onboarding da conta Stripe Connect (Express) desta empresa — necessário
+    // para o checkout público (link do cardápio) repassar o pagamento direto
+    // para a conta do restaurante.
+    private String stripeAccountId;
+    private String stripeOnboardingStatus;
+    private Boolean stripeChargesEnabled;
+    private Boolean stripePayoutsEnabled;
+
     @ManyToOne
     @JoinColumn(name = "segmento_id")
     private Segmento segmento;

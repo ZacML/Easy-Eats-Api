@@ -16,5 +16,7 @@ public enum Funcionalidade {
     PRODUTOS,
     CLIENTES,
     USUARIOS,
-    CONFIGURACOES
+    CONFIGURACOES,
+    CAIXA,
+    CUPONS
 }

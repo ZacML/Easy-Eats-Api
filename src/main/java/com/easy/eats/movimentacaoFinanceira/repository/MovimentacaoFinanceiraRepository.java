@@ -14,4 +14,6 @@ public interface MovimentacaoFinanceiraRepository extends JpaRepository<Moviment
     List<MovimentacaoFinanceira> findAllByEmpresaId(Integer empresaId);
 
     Optional<MovimentacaoFinanceira> findByIdAndEmpresaId(Integer id, Integer empresaId);
+
+    List<MovimentacaoFinanceira> findAllByCaixaId(Integer caixaId);
 }

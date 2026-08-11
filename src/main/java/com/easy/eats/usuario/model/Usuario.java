@@ -44,4 +44,10 @@ public class Usuario {
     private Role role;
 
     private Boolean flAtivo;
+
+    // Usuário técnico criado automaticamente por empresa para representar
+    // pedidos originados do link público (cardápio digital), onde não há um
+    // funcionário autenticado para preencher Venda.usuario. Não aparece nas
+    // listagens de usuário (UsuarioService.listarTodos filtra por este campo).
+    private Boolean flSistema;
 }

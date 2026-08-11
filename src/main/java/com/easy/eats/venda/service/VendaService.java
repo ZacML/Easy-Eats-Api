@@ -9,6 +9,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.easy.eats.comanda.model.Comanda;
+import com.easy.eats.comanda.repository.ComandaRepository;
 import com.easy.eats.empresa.repository.EmpresaRepository;
 import com.easy.eats.itemVenda.model.ItemVenda;
 import com.easy.eats.itemVenda.service.ItemVendaService;
@@ -40,6 +42,9 @@ public class VendaService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    @Autowired
+    ComandaRepository comandaRepository;
+
     public Venda criar(Venda venda) {
         Integer empresaId = SecurityUtils.getEmpresaId();
 
@@ -54,6 +59,7 @@ public class VendaService {
         venda.setEmpresa(empresaRepository.getReferenceById(empresaId));
         venda.setMesa(temMesa ? mesaDaMesmaEmpresa(venda.getMesa(), empresaId) : null);
         venda.setUsuario(usuarioDaMesmaEmpresa(venda.getUsuario(), empresaId));
+        venda.setComanda(comandaDaMesmaEmpresa(venda.getComanda(), empresaId));
 
         return repository.save(venda);
     }
@@ -124,5 +130,23 @@ public class VendaService {
         }
         return usuarioRepository.findByIdAndEmpresaId(usuarioRecebido.getId(), empresaId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário informado não existe ou não pertence à sua empresa"));
+    }
+
+    /**
+     * Comanda é opcional (só pedidos de mesa vinculados ao módulo de Comandas a
+     * usam). Validada aqui, e não só no ComandaService, para que POST /venda
+     * também rejeite uma comanda de outra empresa ou já fechada informada
+     * diretamente por quem chamar a API sem passar pelo fluxo de comandas.
+     */
+    private Comanda comandaDaMesmaEmpresa(Comanda comandaRecebida, Integer empresaId) {
+        if (comandaRecebida == null || comandaRecebida.getId() == null) {
+            return null;
+        }
+        Comanda comanda = comandaRepository.findByIdAndEmpresaId(comandaRecebida.getId(), empresaId)
+                .orElseThrow(() -> new IllegalArgumentException("Comanda informada não existe ou não pertence à sua empresa"));
+        if (!"ABERTA".equalsIgnoreCase(comanda.getStatus())) {
+            throw new IllegalArgumentException("A comanda informada não está aberta");
+        }
+        return comanda;
     }
 }

@@ -2,6 +2,7 @@ package com.easy.eats.venda.model;
 
 import java.util.List;
 
+import com.easy.eats.comanda.model.Comanda;
 import com.easy.eats.empresa.model.model.Empresa;
 import com.easy.eats.itemVenda.model.ItemVenda;
 import com.easy.eats.mesa.model.Mesa;
@@ -72,6 +73,15 @@ public class Venda {
      * Nome do cliente para pedidos sem mesa (balcão/retirada/delivery).
      */
     private String nomeCliente;
+
+    /**
+     * Opcional: comanda à qual esta rodada de pedido pertence (módulo de
+     * Comandas). Pedidos de balcão/retirada continuam sem comanda.
+     */
+    @JsonIgnoreProperties({ "vendas", "mesa" })
+    @ManyToOne
+    @JoinColumn(name = "comanda_id")
+    private Comanda comanda;
 
     @NotNull(message = "O usuário é obrigatório")
     @ManyToOne

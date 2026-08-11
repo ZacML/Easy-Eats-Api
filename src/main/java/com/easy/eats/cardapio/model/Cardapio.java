@@ -39,6 +39,12 @@ public class Cardapio {
     private Boolean flAtivo;
     private LocalDateTime dtAlteracao;
 
+    // Cardápio exibido no link público (módulo do cardápio digital para o
+    // cliente final) quando a empresa tem mais de um cadastrado (ex.: Salão
+    // vs. Delivery). Só um por empresa pode estar marcado — reforçado no
+    // service, não aqui.
+    private Boolean padrao;
+
     @ManyToOne
     @JoinColumn(name = "empresa_id")
     private Empresa empresa;

@@ -1,5 +1,6 @@
 package com.easy.eats.movimentacaoFinanceira.model;
 
+import com.easy.eats.caixa.model.Caixa;
 import com.easy.eats.empresa.model.model.Empresa;
 
 import jakarta.persistence.Entity;
@@ -40,6 +41,13 @@ public class MovimentacaoFinanceira {
 
     private String descricao;
     private String dt_alteracao;
+
+    // Preenchido só em lançamentos de sangria/suprimento feitos durante uma
+    // sessão de caixa aberta (módulo de Frente de Caixa). Lançamentos
+    // genéricos de fluxo de caixa continuam sem vínculo, como antes.
+    @ManyToOne
+    @JoinColumn(name = "caixa_id")
+    private Caixa caixa;
 
     @ManyToOne
     @JoinColumn(name = "empresa_id")

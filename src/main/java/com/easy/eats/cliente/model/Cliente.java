@@ -50,6 +50,11 @@ public class Cliente {
     private String dt_criacao;
     private String dt_alteracao;
 
+    // Saldo acumulado de cashback (módulo de Cupons/Cashback). O crédito e o
+    // débito de saldo entram junto com o checkout do link público — aqui só o
+    // campo é criado, ainda sem lógica de acúmulo automático.
+    private Double saldoCashback;
+
     @OneToMany(mappedBy = "cliente")
     @JsonIgnoreProperties("cliente")
     private java.util.List<Endereco> enderecos;
