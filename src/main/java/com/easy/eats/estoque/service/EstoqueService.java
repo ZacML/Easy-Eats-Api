@@ -1,5 +1,7 @@
 package com.easy.eats.estoque.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import com.easy.eats.estoque.bst.ArvoreInsumos;
 import com.easy.eats.estoque.model.Insumo;
@@ -8,6 +10,10 @@ import com.easy.eats.estoque.model.Insumo;
 public class EstoqueService {
 
     private final ArvoreInsumos arvore = new ArvoreInsumos();
+
+    public List<Insumo> listarTodos() {
+        return arvore.listarEmOrdem();
+    }
 
     public void cadastrarInsumo(Insumo insumo) {
         arvore.inserir(insumo);

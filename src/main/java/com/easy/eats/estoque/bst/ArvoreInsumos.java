@@ -1,10 +1,28 @@
 package com.easy.eats.estoque.bst;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.easy.eats.estoque.model.Insumo;
 
 public class ArvoreInsumos {
 
     private NoInsumo raiz;
+
+    public List<Insumo> listarEmOrdem() {
+        List<Insumo> insumos = new ArrayList<>();
+        listarEmOrdemRecursivo(raiz, insumos);
+        return insumos;
+    }
+
+    private void listarEmOrdemRecursivo(NoInsumo atual, List<Insumo> acumulado) {
+        if (atual == null) {
+            return;
+        }
+        listarEmOrdemRecursivo(atual.esquerda, acumulado);
+        acumulado.add(atual.insumo);
+        listarEmOrdemRecursivo(atual.direita, acumulado);
+    }
 
     public void inserir(Insumo insumo) {
         raiz = inserirRecursivo(raiz, insumo);
