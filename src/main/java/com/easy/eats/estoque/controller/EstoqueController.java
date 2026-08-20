@@ -1,5 +1,7 @@
 package com.easy.eats.estoque.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.easy.eats.estoque.model.Insumo;
 import com.easy.eats.estoque.service.EstoqueService;
@@ -13,6 +15,11 @@ public class EstoqueController {
 
     @Autowired
     private EstoqueService estoqueService;
+
+    @GetMapping
+    public List<Insumo> listar() {
+        return estoqueService.listarTodos();
+    }
 
     @PostMapping("/insumo")
     public String cadastrar(@Valid @RequestBody Insumo insumo) {

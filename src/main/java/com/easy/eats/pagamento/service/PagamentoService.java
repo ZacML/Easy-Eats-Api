@@ -6,11 +6,16 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.easy.eats.caixa.model.Caixa;
+import com.easy.eats.caixa.repository.CaixaRepository;
+import com.easy.eats.comanda.model.Comanda;
+import com.easy.eats.comanda.repository.ComandaRepository;
 import com.easy.eats.pagamento.model.Pagamento;
 import com.easy.eats.pagamento.repository.PagamentoRepository;
 import com.easy.eats.security.SecurityUtils;
 import com.easy.eats.venda.model.Venda;
 import com.easy.eats.venda.repository.VendaRepository;
+import com.easy.eats.venda.service.VendaService;
 
 @Service
 public class PagamentoService {
@@ -21,10 +26,61 @@ public class PagamentoService {
     @Autowired
     VendaRepository vendaRepository;
 
+    @Autowired
+    ComandaRepository comandaRepository;
+
+    @Autowired
+    CaixaRepository caixaRepository;
+
+    @Autowired
+    VendaService vendaService;
+
     public Pagamento criar(Pagamento pagamento) {
         pagamento.setId(null);
-        pagamento.setVenda(vendaDaMesmaEmpresa(pagamento.getVenda()));
-        return repository.save(pagamento);
+
+        boolean temVenda = pagamento.getVenda() != null && pagamento.getVenda().getId() != null;
+        boolean temComanda = pagamento.getComanda() != null && pagamento.getComanda().getId() != null;
+
+        if (temVenda == temComanda) {
+            throw new IllegalArgumentException("Informe a venda ou a comanda do pagamento, mas não as duas");
+        }
+
+        Venda venda = null;
+        if (temVenda) {
+            venda = vendaDaMesmaEmpresa(pagamento.getVenda());
+            pagamento.setVenda(venda);
+            pagamento.setComanda(null);
+        } else {
+            pagamento.setComanda(comandaDaMesmaEmpresa(pagamento.getComanda()));
+            pagamento.setVenda(null);
+        }
+
+        pagamento.setCaixa(caixaAbertoDaEmpresa());
+
+        Pagamento salvo = repository.save(pagamento);
+
+        // Cashback só é creditado no fluxo de venda avulsa (balcão/retirada),
+        // que é o único que hoje permite vincular um Cliente cadastrado —
+        // pedidos de mesa/comanda ainda não têm esse vínculo (ver relatório
+        // do módulo Financeiro).
+        if (venda != null) {
+            vendaService.creditarCashbackSePreciso(venda);
+        }
+
+        return salvo;
+    }
+
+    /**
+     * Vincula automaticamente à sessão de caixa aberta da empresa, se
+     * houver — pagamentos originados do link público (sem usuário
+     * autenticado) não passam por aqui, então ficam sem caixa mesmo.
+     */
+    private Caixa caixaAbertoDaEmpresa() {
+        try {
+            return caixaRepository.findByEmpresaIdAndStatus(SecurityUtils.getEmpresaId(), "ABERTO").orElse(null);
+        } catch (IllegalStateException semUsuarioAutenticado) {
+            return null;
+        }
     }
 
     public Pagamento salvar(Pagamento pagamento) {
@@ -58,5 +114,13 @@ public class PagamentoService {
         }
         return vendaRepository.findByIdAndEmpresaId(vendaRecebida.getId(), SecurityUtils.getEmpresaId())
                 .orElseThrow(() -> new IllegalArgumentException("Venda informada não existe ou não pertence à sua empresa"));
+    }
+
+    private Comanda comandaDaMesmaEmpresa(Comanda comandaRecebida) {
+        if (comandaRecebida == null || comandaRecebida.getId() == null) {
+            throw new IllegalArgumentException("A comanda é obrigatória");
+        }
+        return comandaRepository.findByIdAndEmpresaId(comandaRecebida.getId(), SecurityUtils.getEmpresaId())
+                .orElseThrow(() -> new IllegalArgumentException("Comanda informada não existe ou não pertence à sua empresa"));
     }
 }

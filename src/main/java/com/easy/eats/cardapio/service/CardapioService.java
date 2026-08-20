@@ -62,4 +62,19 @@ public class CardapioService {
         buscarPorId(id);
         repository.deleteById(id);
     }
+
+    public Cardapio marcarPadrao(Integer id) {
+        Cardapio cardapio = buscarPorId(id);
+        Integer empresaId = cardapio.getEmpresa().getId();
+
+        for (Cardapio outro : repository.findAllByEmpresaId(empresaId)) {
+            if (Boolean.TRUE.equals(outro.getPadrao()) && !outro.getId().equals(id)) {
+                outro.setPadrao(false);
+                repository.save(outro);
+            }
+        }
+
+        cardapio.setPadrao(true);
+        return repository.save(cardapio);
+    }
 }

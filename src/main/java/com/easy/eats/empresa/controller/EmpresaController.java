@@ -1,6 +1,7 @@
 package com.easy.eats.empresa.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,5 +55,10 @@ public class EmpresaController {
         service.deletar(id);
         return ResponseEntity.noContent().build();
     }
-    
+
+    @PutMapping("/{id}/slug")
+    public ResponseEntity<Empresa> atualizarSlug(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(service.atualizarSlug(id, body.get("slug")));
+    }
+
 }

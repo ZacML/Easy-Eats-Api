@@ -27,10 +27,13 @@ public class UsuarioService {
     }
 
     public List<Usuario> listarTodos() {
-        if (SecurityUtils.isSuperadmin()) {
-            return repository.findAll();
-        }
-        return repository.findAllByEmpresaId(SecurityUtils.getEmpresaId());
+        List<Usuario> usuarios = SecurityUtils.isSuperadmin()
+                ? repository.findAll()
+                : repository.findAllByEmpresaId(SecurityUtils.getEmpresaId());
+
+        return usuarios.stream()
+                .filter(usuario -> !Boolean.TRUE.equals(usuario.getFlSistema()))
+                .toList();
     }
 
     public Usuario buscarPorId(Integer id) {

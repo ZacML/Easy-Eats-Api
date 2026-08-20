@@ -1,5 +1,6 @@
 package com.easy.eats.venda.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +15,6 @@ public interface VendaRepository extends JpaRepository<Venda, Integer> {
     List<Venda> findAllByEmpresaId(Integer empresaId);
 
     Optional<Venda> findByIdAndEmpresaId(Integer id, Integer empresaId);
+
+    List<Venda> findAllByEmpresaIdAndDataCriacaoBetween(Integer empresaId, LocalDateTime inicio, LocalDateTime fim);
 }

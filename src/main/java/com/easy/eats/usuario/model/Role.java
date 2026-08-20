@@ -4,5 +4,6 @@ public enum Role {
     SUPERADMIN,
     ADMINISTRADOR,
     OPERADOR,
-    GARCOM
+    GARCOM,
+    COZINHEIRO
 }

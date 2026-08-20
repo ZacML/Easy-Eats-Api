@@ -62,9 +62,10 @@ public class DataSeeder implements CommandLineRunner {
                 EnumSet.of(Funcionalidade.PEDIDO, Funcionalidade.COZINHA, Funcionalidade.DELIVERY,
                         Funcionalidade.ESTOQUE, Funcionalidade.COMPRAS, Funcionalidade.FINANCEIRO,
                         Funcionalidade.PRODUTOS, Funcionalidade.CLIENTES, Funcionalidade.USUARIOS,
-                        Funcionalidade.CONFIGURACOES));
+                        Funcionalidade.CONFIGURACOES, Funcionalidade.CAIXA, Funcionalidade.CUPONS));
 
         Empresa empresaDemo = empresaSeNaoExistir(foodTruck);
+        backfillSlug(empresaDemo);
         mesasSeNaoExistir(empresaDemo, 5);
         catalogoSeNaoExistir(empresaDemo);
 
@@ -73,6 +74,7 @@ public class DataSeeder implements CommandLineRunner {
         criarSeNaoExistir("Administrador", "admin@easyeats.com", "admin123", Role.ADMINISTRADOR, empresaDemo);
         criarSeNaoExistir("Operador", "operador@easyeats.com", "operador123", Role.OPERADOR, empresaDemo);
         criarSeNaoExistir("Garçom", "garcom@easyeats.com", "garcom123", Role.GARCOM, empresaDemo);
+        criarSeNaoExistir("Cozinheiro", "cozinheiro@easyeats.com", "cozinheiro123", Role.COZINHEIRO, empresaDemo);
     }
 
     private void mesasSeNaoExistir(Empresa empresa, int quantidade) {
@@ -152,6 +154,17 @@ public class DataSeeder implements CommandLineRunner {
                     empresa.setSegmento(segmentoPadrao);
                     return empresaRepository.save(empresa);
                 });
+    }
+
+    // Empresas criadas antes do campo `slug` existir ficam sem valor (ddl-auto=update
+    // não faz backfill). Preenche com um slug fixo e legível na primeira subida
+    // após a migração — em produção isso seria uma migration dedicada.
+    private void backfillSlug(Empresa empresa) {
+        if (empresa.getSlug() != null && !empresa.getSlug().isBlank()) {
+            return;
+        }
+        empresa.setSlug("empresa-demo");
+        empresaRepository.save(empresa);
     }
 
     private void criarSeNaoExistir(String nome, String email, String senha, Role role, Empresa empresa) {

@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 
 import com.easy.eats.categoria.model.Categoria;
 import com.easy.eats.empresa.model.model.Empresa;
+import com.easy.eats.produto.enums.NaturezaProduto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,6 +48,14 @@ public class Produto {
 
     private Boolean flAtivo;
     private LocalDateTime dtAlteracao;
+
+    /**
+     * Distingue como o produto se comporta no pedido: só produtos PREPARADO
+     * exibem composição editável e adicionais no carrinho (ver alerta de
+     * modelagem do módulo — INSUMO e REVENDA não têm essas seções).
+     */
+    @Enumerated(EnumType.STRING)
+    private NaturezaProduto natureza;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")

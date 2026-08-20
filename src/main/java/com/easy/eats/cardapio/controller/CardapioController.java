@@ -54,5 +54,10 @@ public class CardapioController {
         service.deletar(id);
         return ResponseEntity.noContent().build();
     }
-    
+
+    @PutMapping("/{id}/marcar-padrao")
+    public ResponseEntity<Cardapio> marcarPadrao(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.marcarPadrao(id));
+    }
+
 }
