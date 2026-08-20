@@ -16,4 +16,7 @@ public interface CaixaRepository extends JpaRepository<Caixa, Integer> {
     Optional<Caixa> findByIdAndEmpresaId(Integer id, Integer empresaId);
 
     Optional<Caixa> findByEmpresaIdAndStatus(Integer empresaId, String status);
+
+    List<Caixa> findAllByEmpresaIdAndStatusAndDtFechamentoBetweenOrderByDtFechamentoDesc(
+            Integer empresaId, String status, java.time.LocalDateTime inicio, java.time.LocalDateTime fim);
 }

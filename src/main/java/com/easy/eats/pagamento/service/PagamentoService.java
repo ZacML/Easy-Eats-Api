@@ -15,6 +15,7 @@ import com.easy.eats.pagamento.repository.PagamentoRepository;
 import com.easy.eats.security.SecurityUtils;
 import com.easy.eats.venda.model.Venda;
 import com.easy.eats.venda.repository.VendaRepository;
+import com.easy.eats.venda.service.VendaService;
 
 @Service
 public class PagamentoService {
@@ -31,6 +32,9 @@ public class PagamentoService {
     @Autowired
     CaixaRepository caixaRepository;
 
+    @Autowired
+    VendaService vendaService;
+
     public Pagamento criar(Pagamento pagamento) {
         pagamento.setId(null);
 
@@ -41,8 +45,10 @@ public class PagamentoService {
             throw new IllegalArgumentException("Informe a venda ou a comanda do pagamento, mas não as duas");
         }
 
+        Venda venda = null;
         if (temVenda) {
-            pagamento.setVenda(vendaDaMesmaEmpresa(pagamento.getVenda()));
+            venda = vendaDaMesmaEmpresa(pagamento.getVenda());
+            pagamento.setVenda(venda);
             pagamento.setComanda(null);
         } else {
             pagamento.setComanda(comandaDaMesmaEmpresa(pagamento.getComanda()));
@@ -51,7 +57,17 @@ public class PagamentoService {
 
         pagamento.setCaixa(caixaAbertoDaEmpresa());
 
-        return repository.save(pagamento);
+        Pagamento salvo = repository.save(pagamento);
+
+        // Cashback só é creditado no fluxo de venda avulsa (balcão/retirada),
+        // que é o único que hoje permite vincular um Cliente cadastrado —
+        // pedidos de mesa/comanda ainda não têm esse vínculo (ver relatório
+        // do módulo Financeiro).
+        if (venda != null) {
+            vendaService.creditarCashbackSePreciso(venda);
+        }
+
+        return salvo;
     }
 
     /**

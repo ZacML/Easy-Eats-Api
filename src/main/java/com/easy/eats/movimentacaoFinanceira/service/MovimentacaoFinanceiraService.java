@@ -1,5 +1,6 @@
 package com.easy.eats.movimentacaoFinanceira.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,12 @@ public class MovimentacaoFinanceiraService {
             return repository.findAll();
         }
         return repository.findAllByEmpresaId(SecurityUtils.getEmpresaId());
+    }
+
+    /** Lançamentos da empresa dentro do período [inicio, fim], mais recentes primeiro. */
+    public List<MovimentacaoFinanceira> listarPorPeriodo(LocalDateTime inicio, LocalDateTime fim) {
+        return repository.findAllByEmpresaIdAndDataMovimentacaoBetweenOrderByDataMovimentacaoDesc(
+                SecurityUtils.getEmpresaId(), inicio, fim);
     }
 
     public Optional<MovimentacaoFinanceira> buscarPorId(Integer id) {

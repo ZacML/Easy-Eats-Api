@@ -37,6 +37,12 @@ public class CaixaService {
         return repository.findByEmpresaIdAndStatus(SecurityUtils.getEmpresaId(), "ABERTO").orElse(null);
     }
 
+    /** Sessões já fechadas cujo fechamento caiu dentro de [inicio, fim], mais recentes primeiro. */
+    public java.util.List<Caixa> historico(LocalDateTime inicio, LocalDateTime fim) {
+        return repository.findAllByEmpresaIdAndStatusAndDtFechamentoBetweenOrderByDtFechamentoDesc(
+                SecurityUtils.getEmpresaId(), "FECHADO", inicio, fim);
+    }
+
     public Caixa abrir(Double valorInicial, String observacoes) {
         Integer empresaId = SecurityUtils.getEmpresaId();
 
